@@ -109,6 +109,15 @@ static void captureImg(uint16_t wg,uint16_t hg){
 
 			}//end collecting row data
 
+			UDR0 = hg;	//send row number of this frame
+			while(!( UCSR0A & (1<<UDRE0)));
+			//mark row number section, numbers of rows are going from 119 till 0
+			for(int i = 0; i< 3; i++){
+				UDR0 = '?';	//mark end of row
+				while(!( UCSR0A & (1<<UDRE0)));
+			}
+
+
 			//send row data, 160 bytes, no delimiters
 			lg2=160; //-(wg/5); commented end since im not sending in upper loop
 			while(lg2--){
@@ -116,15 +125,7 @@ static void captureImg(uint16_t wg,uint16_t hg){
 				while(!( UCSR0A & (1<<UDRE0)));//wait for byte to transmit
 			}
 
-			//mark row number section, numbers of rows are going from 119 till 0
-			for(int i = 0; i< 3; i++){
-				UDR0 = '?';	//mark end of row
-				while(!( UCSR0A & (1<<UDRE0)));
-			}
 
-			UDR0 = hg;	//send row number of this frame
-			while(!( UCSR0A & (1<<UDRE0)));
-			UDR0 = '?';			//mark end of a row
 		}// end of pic
 
 	#endif

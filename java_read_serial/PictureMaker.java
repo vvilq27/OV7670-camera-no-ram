@@ -12,7 +12,7 @@ import java.util.Scanner;
 
 public class PictureMaker {
     
-    private static final int WIDTH =  165;//640;    160 + 5 for end indication
+    private static final int WIDTH =  160;//640;    160 + 5 for end indication
     private static final int HEIGHT = 120;//480;
     int[][] rgb = new int[HEIGHT][WIDTH];
     int[][]rgb2 = new int[WIDTH][HEIGHT];
@@ -23,24 +23,51 @@ public class PictureMaker {
         
         //read file and put data to array
         Scanner s = new Scanner(new File("data.txt"));
-//        ArrayList<Integer> list = new ArrayList<>();
-        List rowList;
-        int[] rowIntBuf = new int[165];
+        int[] rowIntBuf = new int[WIDTH];
         String rowStringBuf[];
         int heightIndex = 0;
         
-        while(s.hasNextLine()){
+
+        System.out.println("im in picture maker class now");
+        //gets every line, splits nums to different string arrays, converts those arrays to int
+        //after converting all lines from file we've got pic array
+        while(s.hasNextLine() && heightIndex < 120){
+            
+            if(heightIndex == 0)    //skip first line cus always gonna be mess there
+                s.nextLine();
             String dum = s.nextLine();
             rowStringBuf = dum.trim().split(" ");
-            
             rowIntBuf = Arrays.stream(rowStringBuf).mapToInt(Integer::parseInt).toArray();          //convert string array to int array
-            
+           
             //write row array to final pic array
-            for(int i = 0; i < 165; i++){
-                picArray[heightIndex][i] = rowIntBuf[i];
+            System.out.println("size of row buffer "+ rowIntBuf.length + "row number: " + heightIndex);
+            //starts from index 1 cuz at 0 we got frame number
+            for(int i = 1; i < rowIntBuf.length; i++){
+                if(i> 159)
+                    break;
+                picArray[119 - rowIntBuf[0]][i] = rowIntBuf[i]; //put that row in propper place of picArray and coppy all data into it
+                System.out.print( i + " ");
             }
-            heightIndex++;
+            heightIndex++;  // array vertical index
             
+            /* old version
+            heightIndex++;  // array vertical index
+            if(heightIndex == 0)    //skip first line cus always gonna be mess there
+                s.nextLine();
+            String dum = s.nextLine();
+            rowStringBuf = dum.trim().split(" ");
+            rowIntBuf = Arrays.stream(rowStringBuf).mapToInt(Integer::parseInt).toArray();          //convert string array to int array
+           
+            //write row array to final pic array
+            System.out.println("size of row buffer "+ rowIntBuf.length);
+            for(int i = 0; i < rowIntBuf.length; i++){
+                if(i> 159)
+                    break;
+                picArray[heightIndex][i] = rowIntBuf[i];
+                System.out.println(heightIndex + " "+ i);
+            }
+            heightIndex++;  // array vertical index
+            */
         }
             
         s.close();

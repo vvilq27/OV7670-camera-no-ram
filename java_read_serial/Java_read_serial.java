@@ -17,7 +17,7 @@ import jssc.SerialPortList;
  */
 public class Java_read_serial {
     
-    private static final int WIDTH =  165;//640;
+    private static final int WIDTH =  160;//640;
     private static final int HEIGHT = 120;//480;
     
     public static void main(String[] args) {
@@ -28,28 +28,47 @@ public class Java_read_serial {
             System.out.println(portNames[i]);
         }
         
+        boolean newFrame = false;
+        
         try {
             while(true){
                 serialPort.openPort();//Open serial port
                 serialPort.setParams(1000000, 8, 1, 0);//Set params.
-                int[] buffer = serialPort.readIntArray(19800);//Read x bytes from serial port
+                int[] buffer = serialPort.readIntArray(19801);//Read x bytes from serial port
                 serialPort.closePort();//Close serial port
 
                 File file = new File("data.txt");
 
                 PrintWriter pw = new PrintWriter(file);
-
-                for(int r = 0; r < HEIGHT; r++){
-                    for(int p = 0; p < WIDTH; p++){
-                            pw.print(buffer[p+(r*165)] + " ");
+                int r = 0;
+                int p = 0;
+                
+                while( r < HEIGHT || p < 19800){
+                    //if beginning of the frame
+                    if(buffer[p + 1] == 63 && buffer[p + 2] == 63 && buffer[p + 3] == 63){
+                        
+                        if(r == 0){// skip first row of data
+                            pw.println("43 43 43"); // dummy data
+                            pw.print(buffer[p] + " ");
+                        }
+                        else{
+                            pw.println();
+                            pw.print(buffer[p] + " ");
+                        }
+//                        System.out.println("got frame! " + buffer[p]);
+                        p += 3;
+                        r++;
+                    //if pointer somewhere in data of row
+                    } else{
+                        pw.print(buffer[p] + " ");
                     }
-                    pw.println("");
-                }
-
+                    p++;
+                }//end while
+                        
                 pw.close();
 
                 new PictureMaker();
-            }
+            }// end main loop
         } catch (Exception ex) {
             System.out.println(ex);
         }
