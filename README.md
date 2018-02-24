@@ -1,1 +1,0 @@
-# OV7670-camera-no-ram
